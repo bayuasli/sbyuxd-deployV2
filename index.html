@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DeployKit</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{overflow-x:hidden;height:100%}
+
+:root{
+  --ptero-sidebar:  #1a1c24;
+  --ptero-bg:       #1e2029;
+  --ptero-card:     #252732;
+  --ptero-card2:    #2c2f3e;
+  --ptero-input:    #1a1c24;
+  --ptero-border:   rgba(255,255,255,0.07);
+  --ptero-border2:  rgba(255,255,255,0.12);
+  --blue:           #4875f0;
+  --blue-h:         #3a63d4;
+  --blue-dim:       rgba(72,117,240,0.12);
+  --green:          #3ecf8e;
+  --green-dim:      rgba(62,207,142,0.1);
+  --red:            #e3504f;
+  --red-dim:        rgba(227,80,79,0.1);
+  --yellow:         #f0a429;
+  --yellow-dim:     rgba(240,164,41,0.1);
+  --purple:         #8b5cf6;
+  --text:           #d4d8e8;
+  --text2:          #8892aa;
+  --text3:          #555f78;
+  --sidebar-w:      230px;
+  --header-h:       54px;
+  --r:              6px;
+}
+
+body{
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--ptero-bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:13px;
+  line-height:1.5;
+}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:4px}
+
+/* ═══════ LOGIN ═══════ */
+#login-screen{
+  position:fixed;inset:0;z-index:999;
+  background:var(--ptero-bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+.login-wrap{width:100%;max-width:380px}
+
+.login-brand{text-align:center;margin-bottom:28px}
+.login-icon{
+  width:46px;height:46px;
+  background:var(--blue);
+  border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:1.2rem;margin-bottom:12px;
+  box-shadow:0 6px 20px rgba(72,117,240,0.35);
+}
+.login-brand h1{font-size:1.25rem;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.login-brand p{font-size:0.75rem;color:var(--text3);margin-top:3px}
+
+.login-card{
+  background:var(--ptero-card);
+  border:1px solid var(--ptero-border2);
+  border-radius:8px;
+  padding:24px;
+}
+.fl{display:block;font-size:0.72rem;font-weight:500;color:var(--text2);margin-bottom:5px}
+.fw{margin-bottom:14px;position:relative}
+.fi{
+  width:100%;
+  background:var(--ptero-input);
+  border:1px solid var(--ptero-border2);
+  border-radius:var(--r);
+  padding:9px 12px;
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  font-size:0.82rem;
+  outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(72,117,240,0.15)}
+.fi::placeholder{color:var(--text3)}
+.fi-eye{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--text3);cursor:pointer;
+  font-size:0.78rem;transition:color 0.15s;
+}
+.fi-eye:hover{color:var(--text2)}
+
+.login-hint{
+  background:var(--blue-dim);
+  border:1px solid rgba(72,117,240,0.2);
+  border-radius:var(--r);
+  padding:9px 12px;
+  font-size:0.72rem;color:var(--text2);
+  margin-bottom:16px;
+  display:flex;gap:8px;align-items:flex-start;
+}
+.login-hint i{color:var(--blue);margin-top:1px;flex-shrink:0}
+.login-hint code{color:var(--blue);font-family:monospace}
+
+.btn-login{
+  width:100%;
+  padding:10px;
+  background:var(--blue);color:#fff;
+  border:none;border-radius:var(--r);
+  font-family:'Inter',sans-serif;
+  font-size:0.82rem;font-weight:600;
+  cursor:pointer;
+  transition:background 0.15s,box-shadow 0.15s;
+}
+.btn-login:hover{background:var(--blue-h);box-shadow:0 4px 14px rgba(72,117,240,0.3)}
+
+/* ═══════ APP ═══════ */
+#app{display:none;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;
+  width:var(--sidebar-w);
+  background:var(--ptero-sidebar);
+  border-right:1px solid rgba(255,255,255,0.04);
+  display:flex;flex-direction:column;
+  z-index:100;
+  overflow-y:auto;overflow-x:hidden;
+}
+
+.sb-brand{
+  height:var(--header-h);
+  display:flex;align-items:center;gap:9px;
+  padding:0 14px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  flex-shrink:0;
+}
+.sb-brand-ico{
+  width:26px;height:26px;
+  background:var(--blue);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.75rem;flex-shrink:0;
+}
+.sb-brand-name{font-size:0.9rem;font-weight:700;color:var(--text);letter-spacing:-0.2px}
+
+.sb-sec{padding:16px 10px 6px}
+.sb-sec-label{
+  font-size:0.62rem;font-weight:600;
+  color:var(--text3);text-transform:uppercase;
+  letter-spacing:1.2px;padding:0 8px;margin-bottom:5px;
+}
+.sb-link{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 10px;border-radius:5px;
+  color:var(--text2);font-size:0.8rem;font-weight:500;
+  cursor:pointer;user-select:none;
+  transition:background 0.12s,color 0.12s;
+  margin-bottom:1px;position:relative;
+}
+.sb-link:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+.sb-link.active{background:var(--blue-dim);color:var(--blue)}
+.sb-link.active::before{
+  content:'';
+  position:absolute;left:0;top:20%;bottom:20%;
+  width:3px;background:var(--blue);
+  border-radius:0 3px 3px 0;
+}
+.sb-link i{width:15px;text-align:center;font-size:0.78rem;flex-shrink:0}
+
+.sb-plat{
+  display:flex;align-items:center;gap:9px;
+  padding:6px 10px;border-radius:5px;
+  color:var(--text2);font-size:0.78rem;font-weight:500;
+  cursor:pointer;margin-bottom:1px;
+  transition:background 0.12s,color 0.12s;
+}
+.sb-plat:hover{background:rgba(255,255,255,0.03);color:var(--text)}
+.sb-plat i,.sb-plat span.ico{width:15px;text-align:center;font-size:0.75rem;flex-shrink:0}
+.sb-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--text3);margin-left:auto;flex-shrink:0;
+  transition:background 0.2s,box-shadow 0.2s;
+}
+.sb-dot.on{background:var(--green);box-shadow:0 0 5px rgba(62,207,142,0.5)}
+
+.sb-divider{height:1px;background:rgba(255,255,255,0.04);margin:6px 10px}
+
+.sb-user{
+  margin-top:auto;flex-shrink:0;
+  padding:10px;
+  border-top:1px solid rgba(255,255,255,0.04);
+  display:flex;align-items:center;gap:9px;
+}
+.sb-ava{
+  width:28px;height:28px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.7rem;font-weight:700;color:#fff;
+  flex-shrink:0;
+}
+.sb-uinfo{flex:1;min-width:0}
+.sb-uname{font-size:0.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-urole{font-size:0.65rem;color:var(--text3)}
+.sb-logout{
+  background:none;border:none;color:var(--text3);
+  cursor:pointer;font-size:0.78rem;padding:4px;
+  transition:color 0.15s;
+}
+.sb-logout:hover{color:var(--red)}
+
+/* ── MAIN ── */
+.main-wrap{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column}
+
+.topbar{
+  height:var(--header-h);
+  background:var(--ptero-sidebar);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  display:flex;align-items:center;
+  padding:0 22px;gap:12px;
+  position:sticky;top:0;z-index:50;
+  flex-shrink:0;
+}
+.tb-left{flex:1}
+.tb-title{font-size:0.9rem;font-weight:600;color:var(--text);letter-spacing:-0.2px}
+.tb-sub{font-size:0.7rem;color:var(--text3);margin-top:1px}
+.tb-ico{
+  width:30px;height:30px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--ptero-border);
+  border-radius:var(--r);color:var(--text2);
+  cursor:pointer;font-size:0.78rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.12s;
+}
+.tb-ico:hover{background:rgba(255,255,255,0.07);color:var(--text)}
+
+.content{padding:22px;flex:1}
+
+/* ── PAGE VIEWS ── */
+.pv{display:none}
+.pv.active{display:block}
+
+/* ── MOBILE ── */
+.m-tabs{
+  display:none;
+  padding:10px 14px;gap:4px;
+  overflow-x:auto;background:var(--ptero-sidebar);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.m-tab{
+  flex-shrink:0;
+  padding:6px 12px;border-radius:5px;
+  border:1px solid var(--ptero-border);
+  background:none;color:var(--text2);
+  font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:500;
+  cursor:pointer;transition:all 0.12s;
+  display:flex;align-items:center;gap:5px;
+}
+.m-tab.active{background:var(--blue-dim);color:var(--blue);border-color:rgba(72,117,240,0.25)}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main-wrap{margin-left:0}
+  .m-tabs{display:flex}
+  .content{padding:14px}
+}
+
+/* ── STAT CARDS ── */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:560px){.stat-row{grid-template-columns:1fr}}
+
+.stat-card{
+  background:var(--ptero-card);
+  border:1px solid var(--ptero-border);
+  border-radius:8px;
+  padding:14px 16px;
+  cursor:pointer;
+  transition:border-color 0.15s,transform 0.1s;
+  display:flex;align-items:center;gap:12px;
+}
+.stat-card:hover{border-color:var(--ptero-border2);transform:translateY(-1px)}
+.stat-card.ok{border-color:rgba(62,207,142,0.2)}
+
+.sc-ico{
+  width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.9rem;flex-shrink:0;
+}
+.sc-info{flex:1;min-width:0}
+.sc-name{font-size:0.8rem;font-weight:600;margin-bottom:3px}
+.sc-status{display:flex;align-items:center;gap:5px}
+.sc-dot{width:6px;height:6px;border-radius:50%}
+.sc-dot.g{background:var(--green);box-shadow:0 0 5px rgba(62,207,142,0.5)}
+.sc-dot.r{background:var(--text3)}
+.sc-val{font-size:0.72rem;color:var(--text2)}
+
+/* ── SECTION HEADER ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{font-size:0.78rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:7px}
+.sec-title i{font-size:0.75rem}
+
+/* ── DEPLOY PANELS ── */
+.deploy-grid{display:grid;gap:10px}
+
+.dp-card{
+  background:var(--ptero-card);
+  border:1px solid var(--ptero-border);
+  border-radius:8px;overflow:hidden;
+  transition:border-color 0.15s;
+}
+.dp-card:hover{border-color:var(--ptero-border2)}
+
+.dp-head{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;cursor:pointer;user-select:none;
+  transition:background 0.12s;
+}
+.dp-head:hover{background:rgba(255,255,255,0.02)}
+.dp-head-ico{
+  width:30px;height:30px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.82rem;flex-shrink:0;
+}
+.dp-head-meta{flex:1}
+.dp-head-name{font-size:0.82rem;font-weight:600}
+.dp-head-desc{font-size:0.7rem;color:var(--text3);margin-top:1px}
+.dp-head-right{display:flex;align-items:center;gap:8px}
+.dp-pill{
+  font-size:0.62rem;font-weight:600;
+  padding:2px 8px;border-radius:20px;
+}
+.dp-pill.ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(62,207,142,0.2)}
+.dp-pill.off{background:rgba(255,255,255,0.04);color:var(--text3);border:1px solid var(--ptero-border)}
+.dp-chev{color:var(--text3);font-size:0.7rem;transition:transform 0.22s}
+.dp-chev.open{transform:rotate(180deg)}
+
+.dp-body{max-height:0;overflow:hidden;transition:max-height 0.32s cubic-bezier(0.16,1,0.3,1)}
+.dp-body.open{max-height:900px}
+.dp-inner{
+  padding:16px;
+  border-top:1px solid var(--ptero-border);
+  background:rgba(0,0,0,0.12);
+}
+
+/* ── FORM ── */
+.fg{margin-bottom:13px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:13px}
+@media(max-width:500px){.fg2{grid-template-columns:1fr}}
+.flabel{display:block;font-size:0.7rem;font-weight:500;color:var(--text2);margin-bottom:4px}
+.flabel .req{color:var(--red)}
+.finput{
+  width:100%;
+  background:var(--ptero-input);
+  border:1px solid var(--ptero-border2);
+  border-radius:var(--r);
+  padding:8px 11px;
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  font-size:0.8rem;
+  outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.finput:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(72,117,240,0.12)}
+.finput::placeholder{color:var(--text3)}
+.fhint{font-size:0.68rem;color:var(--text3);margin-top:4px}
+.fhint a{color:var(--blue);text-decoration:none}
+.fhint a:hover{text-decoration:underline}
+
+/* ── UPLOAD DROP ZONE ── */
+.dropzone{
+  border:2px dashed var(--ptero-border2);
+  border-radius:var(--r);
+  padding:22px 16px;
+  text-align:center;
+  cursor:pointer;
+  transition:border-color 0.15s,background 0.15s;
+  margin-bottom:13px;
+  position:relative;
+}
+.dropzone:hover,.dropzone.drag{
+  border-color:var(--blue);
+  background:var(--blue-dim);
+}
+.dropzone input[type=file]{
+  position:absolute;inset:0;
+  opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.dz-icon{font-size:1.5rem;color:var(--text3);margin-bottom:8px}
+.dz-title{font-size:0.8rem;font-weight:500;color:var(--text2)}
+.dz-sub{font-size:0.7rem;color:var(--text3);margin-top:3px}
+.dz-file-info{
+  display:none;
+  align-items:center;gap:10px;
+  background:rgba(62,207,142,0.08);
+  border:1px solid rgba(62,207,142,0.2);
+  border-radius:var(--r);
+  padding:10px 12px;
+  font-size:0.78rem;
+  margin-bottom:13px;
+}
+.dz-file-info.show{display:flex}
+.dz-file-name{flex:1;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dz-file-size{color:var(--text3);flex-shrink:0}
+.dz-clear{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.78rem;transition:color 0.15s}
+.dz-clear:hover{color:var(--red)}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;
+  border-radius:var(--r);border:none;
+  font-family:'Inter',sans-serif;
+  font-size:0.78rem;font-weight:600;
+  cursor:pointer;transition:all 0.12s;line-height:1;
+}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{background:var(--blue-h);box-shadow:0 3px 10px rgba(72,117,240,0.25)}
+.btn-full{width:100%;justify-content:center}
+.btn-ghost{background:rgba(255,255,255,0.05);color:var(--text2);border:1px solid var(--ptero-border)}
+.btn-ghost:hover{background:rgba(255,255,255,0.08);color:var(--text)}
+.btn-success{background:var(--green-dim);color:var(--green);border:1px solid rgba(62,207,142,0.2)}
+.btn-success:hover{background:rgba(62,207,142,0.18)}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(227,80,79,0.15)}
+.btn-danger:hover{background:rgba(227,80,79,0.18)}
+.btn-sm{padding:5px 10px;font-size:0.72rem}
+
+/* ── LOG BOX ── */
+.logbox{
+  background:rgba(0,0,0,0.35);
+  border:1px solid var(--ptero-border);
+  border-radius:var(--r);
+  padding:10px 12px;
+  margin-top:12px;
+  max-height:140px;overflow-y:auto;
+  font-family:'Courier New',monospace;
+  font-size:0.7rem;line-height:1.7;
+  display:none;
+}
+.logbox.show{display:block}
+.logbox::-webkit-scrollbar{width:2px}
+.logbox::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08)}
+.ll{display:flex;gap:8px}
+.lt{color:var(--text3);flex-shrink:0}
+.ll.ok .lm{color:var(--green)}
+.ll.err .lm{color:var(--red)}
+.ll.inf .lm{color:var(--text2)}
+.ll.wrn .lm{color:var(--yellow)}
+
+/* ── TOKEN CARDS ── */
+.tok-card{
+  background:var(--ptero-card);
+  border:1px solid var(--ptero-border);
+  border-radius:8px;
+  padding:16px;margin-bottom:10px;
+  transition:border-color 0.15s;
+}
+.tok-card:hover{border-color:var(--ptero-border2)}
+.tok-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.tok-left{display:flex;align-items:center;gap:10px}
+.tok-ico{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+.tok-name{font-size:0.82rem;font-weight:600}
+.tok-sub{font-size:0.68rem;color:var(--text3);margin-top:1px}
+.tok-badge-ok{font-size:0.62rem;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--green-dim);color:var(--green);border:1px solid rgba(62,207,142,0.2)}
+.tok-badge-off{font-size:0.62rem;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,0.04);color:var(--text3);border:1px solid var(--ptero-border)}
+.tok-row{display:flex;gap:7px;margin-bottom:7px}
+.tok-input{
+  flex:1;min-width:0;
+  background:var(--ptero-input);
+  border:1px solid var(--ptero-border2);
+  border-radius:var(--r);
+  padding:7px 11px;
+  color:var(--text);
+  font-family:monospace;font-size:0.78rem;
+  outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.tok-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(72,117,240,0.12)}
+.tok-input::placeholder{color:var(--text3);font-family:'Inter',sans-serif;font-size:0.72rem}
+
+/* ── WEB LIST TABLE ── */
+.web-table{width:100%;border-collapse:collapse}
+.web-table th{
+  text-align:left;padding:9px 14px;
+  font-size:0.65rem;font-weight:600;
+  color:var(--text3);text-transform:uppercase;letter-spacing:0.9px;
+  border-bottom:1px solid var(--ptero-border);
+}
+.web-table td{
+  padding:10px 14px;
+  font-size:0.78rem;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  vertical-align:middle;
+}
+.web-table tr:last-child td{border-bottom:none}
+.web-table tr:hover td{background:rgba(255,255,255,0.02)}
+.web-link{color:var(--blue);text-decoration:none;font-size:0.72rem}
+.web-link:hover{text-decoration:underline}
+
+/* ── HISTORY TABLE ── */
+.hist-table{width:100%;border-collapse:collapse}
+.hist-table th{text-align:left;padding:9px 14px;font-size:0.65rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.9px;border-bottom:1px solid var(--ptero-border)}
+.hist-table td{padding:10px 14px;font-size:0.78rem;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle}
+.hist-table tr:last-child td{border-bottom:none}
+.hist-table tr:hover td{background:rgba(255,255,255,0.02)}
+
+.badge{font-size:0.62rem;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.badge.ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(62,207,142,0.2)}
+.badge.err{background:var(--red-dim);color:var(--red);border:1px solid rgba(227,80,79,0.15)}
+.badge.run{background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(240,164,41,0.2)}
+
+.plat-tag{display:inline-flex;align-items:center;gap:5px;font-size:0.68rem;font-weight:600;padding:2px 8px;border-radius:5px}
+
+/* ── CARD CONTAINER ── */
+.card{background:var(--ptero-card);border:1px solid var(--ptero-border);border-radius:8px;margin-bottom:14px;overflow:hidden}
+.card-head{padding:13px 16px;border-bottom:1px solid var(--ptero-border);display:flex;align-items:center;justify-content:space-between}
+.card-head-title{font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:7px}
+.card-head-title i{color:var(--text2);font-size:0.75rem}
+.card-head-sub{font-size:0.68rem;color:var(--text3);margin-top:2px}
+.card-body{padding:16px}
+
+/* ── NOTICE ── */
+.notice{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;border-radius:var(--r);font-size:0.75rem;line-height:1.5;margin-bottom:14px}
+.notice.info{background:var(--blue-dim);border:1px solid rgba(72,117,240,0.2);color:#93c5fd}
+.notice i{flex-shrink:0;margin-top:1px}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:36px 20px;color:var(--text3);font-size:0.78rem}
+.empty i{display:block;font-size:1.6rem;margin-bottom:10px;opacity:0.25}
+
+.divider{height:1px;background:var(--ptero-border);margin:18px 0}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="login-icon">🚀</div>
+      <h1>DeployKit</h1>
+      <p>Web Deployment Panel</p>
+    </div>
+    <div class="login-card">
+      <div class="fw">
+        <label class="fl">Username</label>
+        <input type="text" class="fi" id="l-user" placeholder="Username" autocomplete="username">
+      </div>
+      <div class="fw">
+        <label class="fl">Password</label>
+        <div style="position:relative">
+          <input type="password" class="fi" id="l-pass" placeholder="Password" style="padding-right:36px" autocomplete="current-password">
+          <button class="fi-eye" id="pw-eye"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="login-hint">
+        <i class="fas fa-circle-info"></i>
+        <span>Default: <code>admin</code> / <code>admin123</code> — ubah di Settings</span>
+      </div>
+      <button class="btn-login" id="login-btn"><i class="fas fa-arrow-right-to-bracket" style="margin-right:5px"></i>Masuk</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════ APP ═══════════════ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-brand-ico">🚀</div>
+      <div class="sb-brand-name">DeployKit</div>
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-sec-label">Menu</div>
+      <div class="sb-link active" data-page="deploy"><i class="fas fa-rocket"></i> Deploy</div>
+      <div class="sb-link" data-page="webs"><i class="fas fa-globe"></i> My Websites</div>
+      <div class="sb-link" data-page="tokens"><i class="fas fa-key"></i> API Tokens</div>
+      <div class="sb-link" data-page="history"><i class="fas fa-clock-rotate-left"></i> Riwayat</div>
+      <div class="sb-link" data-page="settings"><i class="fas fa-gear"></i> Settings</div>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <div class="sb-sec">
+      <div class="sb-sec-label">Platform</div>
+      <div class="sb-plat" onclick="gotoTok('gh')">
+        <i class="fab fa-github"></i><span>GitHub Pages</span>
+        <span class="sb-dot" id="sdot-gh"></span>
+      </div>
+      <div class="sb-plat" onclick="gotoTok('ntl')">
+        <i class="fas fa-bolt"></i><span>Netlify</span>
+        <span class="sb-dot" id="sdot-ntl"></span>
+      </div>
+      <div class="sb-plat" onclick="gotoTok('vcl')">
+        <span class="ico" style="font-weight:700;font-size:0.7rem;color:var(--text2)">▲</span><span>Vercel</span>
+        <span class="sb-dot" id="sdot-vcl"></span>
+      </div>
+    </div>
+
+    <div class="sb-user">
+      <div class="sb-ava" id="sb-ava">A</div>
+      <div class="sb-uinfo">
+        <div class="sb-uname" id="sb-uname">admin</div>
+        <div class="sb-urole">Administrator</div>
+      </div>
+      <button class="sb-logout" id="btn-logout" title="Logout"><i class="fas fa-right-from-bracket"></i></button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-wrap">
+    <div class="topbar">
+      <div class="tb-left">
+        <div class="tb-title" id="tb-title">Deploy</div>
+        <div class="tb-sub"  id="tb-sub">Upload dan deploy web ke platform pilihan</div>
+      </div>
+      <button class="tb-ico" id="tbtn-settings" title="Settings"><i class="fas fa-gear"></i></button>
+      <button class="tb-ico" id="tbtn-logout"   title="Logout"><i class="fas fa-right-from-bracket"></i></button>
+    </div>
+
+    <div class="m-tabs">
+      <button class="m-tab active" data-page="deploy"><i class="fas fa-rocket"></i> Deploy</button>
+      <button class="m-tab" data-page="webs"><i class="fas fa-globe"></i> Websites</button>
+      <button class="m-tab" data-page="tokens"><i class="fas fa-key"></i> Tokens</button>
+      <button class="m-tab" data-page="history"><i class="fas fa-clock-rotate-left"></i> Riwayat</button>
+      <button class="m-tab" data-page="settings"><i class="fas fa-gear"></i> Settings</button>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ DEPLOY ══ -->
+      <div class="pv active" id="pv-deploy">
+        <div class="stat-row">
+          <div class="stat-card" id="sc-gh" onclick="gotoTok('gh')">
+            <div class="sc-ico" style="background:rgba(255,255,255,0.06)"><i class="fab fa-github"></i></div>
+            <div class="sc-info">
+              <div class="sc-name">GitHub Pages</div>
+              <div class="sc-status">
+                <span class="sc-dot r" id="scdot-gh"></span>
+                <span class="sc-val" id="scval-gh">Not connected</span>
+              </div>
+            </div>
+          </div>
+          <div class="stat-card" id="sc-ntl" onclick="gotoTok('ntl')">
+            <div class="sc-ico" style="background:rgba(0,173,159,0.1);color:#00ad9f"><i class="fas fa-bolt"></i></div>
+            <div class="sc-info">
+              <div class="sc-name">Netlify</div>
+              <div class="sc-status">
+                <span class="sc-dot r" id="scdot-ntl"></span>
+                <span class="sc-val" id="scval-ntl">Not connected</span>
+              </div>
+            </div>
+          </div>
+          <div class="stat-card" id="sc-vcl" onclick="gotoTok('vcl')">
+            <div class="sc-ico" style="background:rgba(255,255,255,0.06);font-weight:700;font-size:0.75rem">▲</div>
+            <div class="sc-info">
+              <div class="sc-name">Vercel</div>
+              <div class="sc-status">
+                <span class="sc-dot r" id="scdot-vcl"></span>
+                <span class="sc-val" id="scval-vcl">Not connected</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GitHub Pages deploy -->
+        <div class="dp-card">
+          <div class="dp-head" onclick="toggleDp('gh')">
+            <div class="dp-head-ico" style="background:rgba(255,255,255,0.06)"><i class="fab fa-github"></i></div>
+            <div class="dp-head-meta">
+              <div class="dp-head-name">GitHub Pages</div>
+              <div class="dp-head-desc">Upload ZIP web → push ke repo → aktifkan Pages</div>
+            </div>
+            <div class="dp-head-right">
+              <span class="dp-pill off" id="dpill-gh">No token</span>
+              <i class="fas fa-chevron-down dp-chev" id="dchev-gh"></i>
+            </div>
+          </div>
+          <div class="dp-body" id="dbody-gh">
+            <div class="dp-inner">
+              <div class="fg">
+                <label class="flabel">Upload file <span class="req">*</span></label>
+                <div class="dropzone" id="dz-gh">
+                  <input type="file" id="file-gh" accept=".zip,.html">
+                  <div class="dz-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+                  <div class="dz-title">Klik atau drag file di sini</div>
+                  <div class="dz-sub">ZIP (multi-file) atau HTML tunggal</div>
+                </div>
+                <div class="dz-file-info" id="fi-gh">
+                  <i class="fas fa-file-code" style="color:var(--green);flex-shrink:0"></i>
+                  <span class="dz-file-name" id="fn-gh">—</span>
+                  <span class="dz-file-size" id="fs-gh">—</span>
+                  <button class="dz-clear" onclick="clearFile('gh')"><i class="fas fa-xmark"></i></button>
+                </div>
+              </div>
+              <div class="fg2">
+                <div>
+                  <label class="flabel">Nama repo <span class="req">*</span></label>
+                  <input type="text" class="finput" id="gh-repo" placeholder="nama-repo">
+                </div>
+                <div>
+                  <label class="flabel">Branch</label>
+                  <input type="text" class="finput" id="gh-branch" value="main">
+                </div>
+              </div>
+              <button class="btn btn-blue btn-full" onclick="deployGH()">
+                <i class="fab fa-github"></i> Deploy ke GitHub Pages
+              </button>
+              <div class="logbox" id="log-gh"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Netlify deploy -->
+        <div class="dp-card">
+          <div class="dp-head" onclick="toggleDp('ntl')">
+            <div class="dp-head-ico" style="background:rgba(0,173,159,0.1);color:#00ad9f"><i class="fas fa-bolt"></i></div>
+            <div class="dp-head-meta">
+              <div class="dp-head-name">Netlify</div>
+              <div class="dp-head-desc">Upload ZIP web → deploy langsung ke Netlify site</div>
+            </div>
+            <div class="dp-head-right">
+              <span class="dp-pill off" id="dpill-ntl">No token</span>
+              <i class="fas fa-chevron-down dp-chev" id="dchev-ntl"></i>
+            </div>
+          </div>
+          <div class="dp-body" id="dbody-ntl">
+            <div class="dp-inner">
+              <div class="fg">
+                <label class="flabel">Upload file <span class="req">*</span></label>
+                <div class="dropzone" id="dz-ntl">
+                  <input type="file" id="file-ntl" accept=".zip,.html">
+                  <div class="dz-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+                  <div class="dz-title">Klik atau drag file di sini</div>
+                  <div class="dz-sub">ZIP (multi-file) atau HTML tunggal</div>
+                </div>
+                <div class="dz-file-info" id="fi-ntl">
+                  <i class="fas fa-file-code" style="color:var(--green);flex-shrink:0"></i>
+                  <span class="dz-file-name" id="fn-ntl">—</span>
+                  <span class="dz-file-size" id="fs-ntl">—</span>
+                  <button class="dz-clear" onclick="clearFile('ntl')"><i class="fas fa-xmark"></i></button>
+                </div>
+              </div>
+              <div class="fg2">
+                <div>
+                  <label class="flabel">Nama site <span class="req">*</span></label>
+                  <input type="text" class="finput" id="ntl-site" placeholder="nama-site">
+                  <div class="fhint">Akan jadi nama-site.netlify.app</div>
+                </div>
+                <div>
+                  <label class="flabel">Deploy title (opsional)</label>
+                  <input type="text" class="finput" id="ntl-title" placeholder="Deploy via DeployKit">
+                </div>
+              </div>
+              <button class="btn btn-full" onclick="deployNTL()" style="background:rgba(0,173,159,0.12);color:#00ad9f;border:1px solid rgba(0,173,159,0.25);justify-content:center;width:100%">
+                <i class="fas fa-bolt"></i> Deploy ke Netlify
+              </button>
+              <div class="logbox" id="log-ntl"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vercel deploy -->
+        <div class="dp-card">
+          <div class="dp-head" onclick="toggleDp('vcl')">
+            <div class="dp-head-ico" style="background:rgba(255,255,255,0.06);font-weight:700;font-size:0.75rem">▲</div>
+            <div class="dp-head-meta">
+              <div class="dp-head-name">Vercel</div>
+              <div class="dp-head-desc">Upload ZIP atau HTML → deploy ke Vercel project</div>
+            </div>
+            <div class="dp-head-right">
+              <span class="dp-pill off" id="dpill-vcl">No token</span>
+              <i class="fas fa-chevron-down dp-chev" id="dchev-vcl"></i>
+            </div>
+          </div>
+          <div class="dp-body" id="dbody-vcl">
+            <div class="dp-inner">
+              <div class="fg">
+                <label class="flabel">Upload file <span class="req">*</span></label>
+                <div class="dropzone" id="dz-vcl">
+                  <input type="file" id="file-vcl" accept=".zip,.html">
+                  <div class="dz-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+                  <div class="dz-title">Klik atau drag file di sini</div>
+                  <div class="dz-sub">ZIP (multi-file) atau HTML tunggal</div>
+                </div>
+                <div class="dz-file-info" id="fi-vcl">
+                  <i class="fas fa-file-code" style="color:var(--green);flex-shrink:0"></i>
+                  <span class="dz-file-name" id="fn-vcl">—</span>
+                  <span class="dz-file-size" id="fs-vcl">—</span>
+                  <button class="dz-clear" onclick="clearFile('vcl')"><i class="fas fa-xmark"></i></button>
+                </div>
+              </div>
+              <div class="fg2">
+                <div>
+                  <label class="flabel">Nama project <span class="req">*</span></label>
+                  <input type="text" class="finput" id="vcl-proj" placeholder="nama-project">
+                  <div class="fhint">Akan jadi nama-project.vercel.app</div>
+                </div>
+                <div>
+                  <label class="flabel">Team ID (opsional)</label>
+                  <input type="text" class="finput" id="vcl-team" placeholder="team_xxx (kosongkan jika personal)">
+                </div>
+              </div>
+              <button class="btn btn-full" onclick="deployVCL()" style="background:rgba(255,255,255,0.07);color:var(--text);border:1px solid var(--ptero-border2);justify-content:center;width:100%">
+                ▲ Deploy ke Vercel
+              </button>
+              <div class="logbox" id="log-vcl"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ MY WEBSITES (Vercel list) ══ -->
+      <div class="pv" id="pv-webs">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="fas fa-globe"></i> Deployed Websites</div>
+          <button class="btn btn-ghost btn-sm" onclick="loadWebs()"><i class="fas fa-rotate-right"></i> Refresh</button>
+        </div>
+        <div class="card">
+          <div id="webs-wrap"><div class="empty"><i class="fas fa-globe"></i>Klik Refresh untuk memuat daftar website.</div></div>
+        </div>
+      </div>
+
+      <!-- ══ TOKENS ══ -->
+      <div class="pv" id="pv-tokens">
+        <div class="notice info">
+          <i class="fas fa-shield-halved"></i>
+          <span>Token disimpan terenkripsi di localStorage browser. Tidak pernah dikirim ke server manapun selain API tujuan.</span>
+        </div>
+
+        <div class="tok-card" id="tcard-gh">
+          <div class="tok-top">
+            <div class="tok-left">
+              <div class="tok-ico" style="background:rgba(255,255,255,0.06)"><i class="fab fa-github"></i></div>
+              <div>
+                <div class="tok-name">GitHub Personal Access Token</div>
+                <div class="tok-sub">Scope: repo, contents — untuk push file dan aktifkan Pages</div>
+              </div>
+            </div>
+            <span id="tbadge-gh" class="tok-badge-off">Belum diset</span>
+          </div>
+          <div class="tok-row">
+            <input type="password" class="tok-input" id="ti-gh" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx">
+            <button class="btn btn-success btn-sm" onclick="saveToken('gh')">Simpan</button>
+            <button class="btn btn-danger btn-sm"  onclick="clearToken('gh')">Hapus</button>
+          </div>
+          <div class="fhint"><i class="fas fa-arrow-up-right-from-square" style="font-size:0.6rem"></i> Buat di <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a></div>
+        </div>
+
+        <div class="tok-card" id="tcard-ntl">
+          <div class="tok-top">
+            <div class="tok-left">
+              <div class="tok-ico" style="background:rgba(0,173,159,0.1);color:#00ad9f"><i class="fas fa-bolt"></i></div>
+              <div>
+                <div class="tok-name">Netlify Personal Access Token</div>
+                <div class="tok-sub">User access token untuk create site dan deploy ZIP</div>
+              </div>
+            </div>
+            <span id="tbadge-ntl" class="tok-badge-off">Belum diset</span>
+          </div>
+          <div class="tok-row">
+            <input type="password" class="tok-input" id="ti-ntl" placeholder="nfp_xxxxxxxxxxxxxxxxxxxxxxxx">
+            <button class="btn btn-success btn-sm" onclick="saveToken('ntl')">Simpan</button>
+            <button class="btn btn-danger btn-sm"  onclick="clearToken('ntl')">Hapus</button>
+          </div>
+          <div class="fhint"><i class="fas fa-arrow-up-right-from-square" style="font-size:0.6rem"></i> Buat di <a href="https://app.netlify.com/user/applications" target="_blank">app.netlify.com/user/applications</a></div>
+        </div>
+
+        <div class="tok-card" id="tcard-vcl">
+          <div class="tok-top">
+            <div class="tok-left">
+              <div class="tok-ico" style="background:rgba(255,255,255,0.06);font-weight:700;font-size:0.75rem">▲</div>
+              <div>
+                <div class="tok-name">Vercel Access Token</div>
+                <div class="tok-sub">Untuk upload file, create project, dan deploy ke Vercel</div>
+              </div>
+            </div>
+            <span id="tbadge-vcl" class="tok-badge-off">Belum diset</span>
+          </div>
+          <div class="tok-row">
+            <input type="password" class="tok-input" id="ti-vcl" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            <button class="btn btn-success btn-sm" onclick="saveToken('vcl')">Simpan</button>
+            <button class="btn btn-danger btn-sm"  onclick="clearToken('vcl')">Hapus</button>
+          </div>
+          <div class="fhint"><i class="fas fa-arrow-up-right-from-square" style="font-size:0.6rem"></i> Buat di <a href="https://vercel.com/account/tokens" target="_blank">vercel.com/account/tokens</a></div>
+        </div>
+      </div>
+
+      <!-- ══ HISTORY ══ -->
+      <div class="pv" id="pv-history">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="fas fa-clock-rotate-left"></i> Riwayat Deploy</div>
+          <button class="btn btn-danger btn-sm" onclick="clearHistory()"><i class="fas fa-trash"></i> Hapus semua</button>
+        </div>
+        <div class="card"><div id="hist-wrap"></div></div>
+      </div>
+
+      <!-- ══ SETTINGS ══ -->
+      <div class="pv" id="pv-settings">
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title"><i class="fas fa-user-pen"></i> Kredensial Login</div>
+              <div class="card-head-sub">Ubah username dan password dashboard</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="fg2">
+              <div>
+                <label class="flabel">Username baru</label>
+                <input type="text" class="finput" id="s-user" placeholder="Username" autocomplete="off">
+              </div>
+              <div>
+                <label class="flabel">Password baru</label>
+                <input type="password" class="finput" id="s-pass" placeholder="Min. 6 karakter">
+              </div>
+            </div>
+            <button class="btn btn-blue" onclick="saveCreds()"><i class="fas fa-floppy-disk"></i> Simpan</button>
+          </div>
+        </div>
+
+        <div class="card" style="border-color:rgba(227,80,79,0.2)">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title" style="color:var(--red)"><i class="fas fa-triangle-exclamation"></i> Danger Zone</div>
+              <div class="card-head-sub">Tindakan ini tidak bisa dibatalkan</div>
+            </div>
+          </div>
+          <div class="card-body" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+            <div>
+              <div style="font-size:0.82rem;font-weight:500;margin-bottom:3px">Reset semua data</div>
+              <div style="font-size:0.72rem;color:var(--text3)">Hapus semua token, riwayat, dan kredensial. Kembali ke default.</div>
+            </div>
+            <button class="btn btn-danger" onclick="resetAll()"><i class="fas fa-rotate-left"></i> Reset semua</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+const SK = 'dkit_ptero_v1';
+const get  = () => { try{return JSON.parse(localStorage.getItem(SK))||{};}catch{return {};} };
+const set  = o  => localStorage.setItem(SK, JSON.stringify({...get(),...o}));
+const enc  = (s,k='dkp25') => btoa(s.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^k.charCodeAt(i%k.length))).join(''));
+const dec  = (s,k='dkp25') => { try{return atob(s).split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^k.charCodeAt(i%k.length))).join('');}catch{return '';} };
+const gTok = k => { const d=get(); return d['t_'+k]?dec(d['t_'+k]):''; };
+const sTok = (k,v) => set({['t_'+k]:enc(v)});
+const creds = () => { const d=get(); return {u:d.au||'admin',p:d.ap?dec(d.ap):'admin123'}; };
+
+const SB = {background:'#252732',color:'#d4d8e8'};
+const al = (icon,text) => Swal.fire({icon,text,confirmButtonColor:'#4875f0',...SB});
+
+/* files store */
+const files = {gh:null, ntl:null, vcl:null};
+
+/* ── AUTH ── */
+document.getElementById('pw-eye').addEventListener('click',function(){
+  const el=document.getElementById('l-pass'),h=el.type==='password';
+  el.type=h?'text':'password';
+  this.querySelector('i').className=h?'fas fa-eye-slash':'fas fa-eye';
+});
+document.getElementById('login-btn').addEventListener('click',doLogin);
+['l-user','l-pass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();}));
+
+function doLogin(){
+  const u=document.getElementById('l-user').value.trim();
+  const p=document.getElementById('l-pass').value;
+  const c=creds();
+  if(!u||!p){al('warning','Isi username dan password!');return;}
+  if(u===c.u&&p===c.p){
+    set({sess:enc(u+'|'+Date.now())});
+    bootApp(u);
+    Swal.fire({icon:'success',title:'Selamat datang, '+u+'!',timer:1200,showConfirmButton:false,...SB});
+  } else {
+    document.getElementById('l-pass').value='';
+    al('error','Username atau password salah.');
+  }
+}
+
+function bootApp(u){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('sb-uname').textContent=u;
+  document.getElementById('sb-ava').textContent=u[0].toUpperCase();
+  refreshAll();
+}
+
+function checkSession(){
+  const d=get();if(!d.sess)return;
+  try{const [u]=dec(d.sess).split('|');if(u)bootApp(u);}catch{}
+}
+
+function doLogout(){
+  Swal.fire({title:'Logout?',icon:'question',showCancelButton:true,confirmButtonText:'Logout',cancelButtonText:'Batal',confirmButtonColor:'#e3504f',cancelButtonColor:'#374151',...SB})
+  .then(r=>{if(!r.isConfirmed)return;
+    const d=get();delete d.sess;localStorage.setItem(SK,JSON.stringify(d));
+    document.getElementById('app').style.display='none';
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('l-user').value='';document.getElementById('l-pass').value='';
+  });
+}
+document.getElementById('btn-logout').addEventListener('click',doLogout);
+document.getElementById('tbtn-logout').addEventListener('click',doLogout);
+document.getElementById('tbtn-settings').addEventListener('click',()=>navigate('settings'));
+
+/* ── NAV ── */
+const pageMeta={
+  deploy: {t:'Deploy',s:'Upload dan deploy web ke platform pilihan'},
+  webs:   {t:'My Websites',s:'Daftar website yang sudah di-deploy di Vercel'},
+  tokens: {t:'API Tokens',s:'Kelola token akses untuk setiap platform'},
+  history:{t:'Riwayat Deploy',s:'Log semua aktivitas deploy'},
+  settings:{t:'Settings',s:'Konfigurasi akun dan dashboard'}
+};
+
+function navigate(page){
+  document.querySelectorAll('.sb-link,.m-tab').forEach(el=>el.classList.toggle('active',el.dataset.page===page));
+  document.querySelectorAll('.pv').forEach(el=>el.classList.toggle('active',el.id==='pv-'+page));
+  const m=pageMeta[page]||{};
+  document.getElementById('tb-title').textContent=m.t||page;
+  document.getElementById('tb-sub').textContent=m.s||'';
+  if(page==='history')renderHistory();
+  if(page==='webs')loadWebs();
+}
+document.querySelectorAll('.sb-link,.m-tab').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.page)));
+
+function gotoTok(k){
+  navigate('tokens');
+  setTimeout(()=>{
+    document.getElementById('tcard-'+k).scrollIntoView({behavior:'smooth',block:'center'});
+    document.getElementById('ti-'+k).focus();
+  },150);
+}
+
+/* ── REFRESH UI ── */
+function refreshAll(){
+  ['gh','ntl','vcl'].forEach(k=>{
+    const has=!!gTok(k);
+    const sdot=document.getElementById('sdot-'+k);
+    const scdot=document.getElementById('scdot-'+k);
+    const scval=document.getElementById('scval-'+k);
+    const sc=document.getElementById('sc-'+k);
+    const dpill=document.getElementById('dpill-'+k);
+    const tbadge=document.getElementById('tbadge-'+k);
+    sdot.classList.toggle('on',has);
+    scdot.className='sc-dot '+(has?'g':'r');
+    scval.textContent=has?'Connected':'Not connected';
+    sc.classList.toggle('ok',has);
+    dpill.textContent=has?'Token set':'No token';
+    dpill.className='dp-pill '+(has?'ok':'off');
+    tbadge.textContent=has?'Tersimpan':'Belum diset';
+    tbadge.className=has?'tok-badge-ok':'tok-badge-off';
+  });
+}
+
+/* ── TOKENS ── */
+function saveToken(k){
+  const v=document.getElementById('ti-'+k).value.trim();
+  if(!v){al('warning','Token tidak boleh kosong.');return;}
+  sTok(k,v);document.getElementById('ti-'+k).value='';refreshAll();
+  const n={gh:'GitHub',ntl:'Netlify',vcl:'Vercel'};
+  Swal.fire({icon:'success',title:'Token '+n[k]+' tersimpan',text:'Terenkripsi dan aman di browser.',confirmButtonColor:'#4875f0',...SB});
+}
+function clearToken(k){
+  const n={gh:'GitHub',ntl:'Netlify',vcl:'Vercel'};
+  Swal.fire({title:'Hapus token '+n[k]+'?',text:'Token akan dihapus dari browser.',icon:'warning',showCancelButton:true,confirmButtonText:'Hapus',cancelButtonText:'Batal',confirmButtonColor:'#e3504f',cancelButtonColor:'#374151',...SB})
+  .then(r=>{if(!r.isConfirmed)return;const d=get();delete d['t_'+k];localStorage.setItem(SK,JSON.stringify(d));refreshAll();
+    Swal.fire({icon:'info',title:'Token dihapus',timer:1200,showConfirmButton:false,...SB});
+  });
+}
+
+function saveCreds(){
+  const u=document.getElementById('s-user').value.trim();
+  const p=document.getElementById('s-pass').value;
+  if(!u||!p){al('warning','Isi semua field.');return;}
+  if(p.length<6){al('warning','Password minimal 6 karakter.');return;}
+  set({au:u,ap:enc(p)});
+  document.getElementById('s-user').value='';document.getElementById('s-pass').value='';
+  document.getElementById('sb-uname').textContent=u;
+  document.getElementById('sb-ava').textContent=u[0].toUpperCase();
+  Swal.fire({icon:'success',title:'Kredensial diperbarui!',confirmButtonColor:'#4875f0',...SB});
+}
+function resetAll(){
+  Swal.fire({title:'Reset semua data?',text:'Tidak bisa dibatalkan.',icon:'warning',showCancelButton:true,confirmButtonText:'Ya, reset',cancelButtonText:'Batal',confirmButtonColor:'#e3504f',cancelButtonColor:'#374151',...SB})
+  .then(r=>{if(r.isConfirmed){localStorage.removeItem(SK);location.reload();}});
+}
+
+/* ── DROPZONE ── */
+['gh','ntl','vcl'].forEach(k=>{
+  const dz=document.getElementById('dz-'+k);
+  const inp=document.getElementById('file-'+k);
+  inp.addEventListener('change',e=>{if(e.target.files[0])setFile(k,e.target.files[0]);});
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+  dz.addEventListener('drop',e=>{
+    e.preventDefault();dz.classList.remove('drag');
+    const f=e.dataTransfer.files[0];
+    if(f&&(f.name.endsWith('.zip')||f.name.endsWith('.html')))setFile(k,f);
+    else al('warning','Hanya file .zip atau .html yang diterima.');
+  });
+});
+
+function setFile(k,f){
+  files[k]=f;
+  document.getElementById('fn-'+k).textContent=f.name;
+  document.getElementById('fs-'+k).textContent=fmtSize(f.size);
+  document.getElementById('fi-'+k).classList.add('show');
+}
+function clearFile(k){
+  files[k]=null;
+  document.getElementById('file-'+k).value='';
+  document.getElementById('fi-'+k).classList.remove('show');
+}
+function fmtSize(b){if(b<1024)return b+'B';if(b<1048576)return (b/1024).toFixed(1)+'KB';return (b/1048576).toFixed(1)+'MB';}
+
+/* ── ACCORDION ── */
+function toggleDp(k){
+  const body=document.getElementById('dbody-'+k);
+  const chev=document.getElementById('dchev-'+k);
+  const isOpen=body.classList.contains('open');
+  ['gh','ntl','vcl'].forEach(x=>{
+    document.getElementById('dbody-'+x).classList.remove('open');
+    document.getElementById('dchev-'+x).classList.remove('open');
+  });
+  if(!isOpen){body.classList.add('open');chev.classList.add('open');}
+}
+
+/* ── LOG ── */
+function log(k,type,msg){
+  const b=document.getElementById('log-'+k);
+  b.classList.add('show');
+  const t=new Date().toTimeString().slice(0,8);
+  const l=document.createElement('div');l.className='ll '+type;
+  l.innerHTML=`<span class="lt">${t}</span><span class="lm">${msg}</span>`;
+  b.appendChild(l);b.scrollTop=b.scrollHeight;
+}
+function clearLog(k){const b=document.getElementById('log-'+k);b.innerHTML='';b.classList.remove('show');}
+
+/* ── HISTORY ── */
+function addHist(plat,name,status){
+  const d=get();const h=d.history||[];
+  h.unshift({plat,name,status,time:Date.now()});
+  if(h.length>60)h.pop();set({history:h});
+}
+function renderHistory(){
+  const h=get().history||[];
+  const el=document.getElementById('hist-wrap');
+  if(!h.length){el.innerHTML='<div class="empty"><i class="fas fa-clock-rotate-left"></i>Belum ada riwayat deploy.</div>';return;}
+  const pc={gh:'rgba(255,255,255,0.07)',ntl:'rgba(0,173,159,0.1)',vcl:'rgba(255,255,255,0.07)'};
+  const ptc={gh:'#d4d8e8',ntl:'#00ad9f',vcl:'#fff'};
+  const pl={gh:'GitHub',ntl:'Netlify',vcl:'Vercel'};
+  const pi={gh:'<i class="fab fa-github"></i>',ntl:'<i class="fas fa-bolt"></i>',vcl:'<span style="font-weight:700;font-size:0.7rem">▲</span>'};
+  el.innerHTML=`<table class="hist-table"><thead><tr><th>Platform</th><th>Target</th><th>Status</th><th>Waktu</th></tr></thead><tbody>`+
+  h.map(item=>{
+    const sc=item.status==='success'?'ok':item.status==='running'?'run':'err';
+    const st={success:'Success',running:'Running',failed:'Failed'}[item.status]||item.status;
+    const dt=new Date(item.time).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `<tr>
+      <td><span class="plat-tag" style="background:${pc[item.plat]};color:${ptc[item.plat]}">${pi[item.plat]} ${pl[item.plat]}</span></td>
+      <td style="color:var(--text2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.name}</td>
+      <td><span class="badge ${sc}">${st}</span></td>
+      <td style="color:var(--text3);font-size:0.72rem">${dt}</td>
+    </tr>`;
+  }).join('')+`</tbody></table>`;
+}
+function clearHistory(){
+  Swal.fire({title:'Hapus semua riwayat?',icon:'question',showCancelButton:true,confirmButtonText:'Hapus',cancelButtonText:'Batal',confirmButtonColor:'#e3504f',cancelButtonColor:'#374151',...SB})
+  .then(r=>{if(r.isConfirmed){set({history:[]});renderHistory();}});
+}
+
+/* ── HELPERS ── */
+function readFile(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsArrayBuffer(f);});}
+function b64(buf){const bytes=new Uint8Array(buf);let s='';bytes.forEach(b=>s+=String.fromCharCode(b));return btoa(s);}
+function sha1hex(buf){/* SHA1 via subtle */return crypto.subtle.digest('SHA-1',buf).then(h=>Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join(''));}
+
+/* ── DEPLOY: GITHUB PAGES ── */
+async function deployGH(){
+  const token=gTok('gh');
+  const repo=document.getElementById('gh-repo').value.trim();
+  const branch=document.getElementById('gh-branch').value.trim()||'main';
+  const file=files.gh;
+  clearLog('gh');
+  if(!token){gotoTok('gh');al('error','Token GitHub belum diset.');return;}
+  if(!repo){al('warning','Nama repo wajib diisi.');return;}
+  if(!file){al('warning','Pilih file ZIP atau HTML dulu.');return;}
+  if(!/^[a-zA-Z0-9_.-]+$/.test(repo)){al('warning','Nama repo tidak valid. Gunakan huruf, angka, titik, atau strip.');return;}
+
+  const H={'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+  const GH='https://api.github.com';
+
+  log('gh','inf','Memulai deploy ke GitHub Pages...');
+  addHist('gh',repo,'running');
+
+  try{
+    log('gh','inf','Mengambil info akun GitHub...');
+    const userRes=await fetch(GH+'/user',{headers:H});
+    if(!userRes.ok) throw new Error('Token tidak valid: '+userRes.status);
+    const {login}=await userRes.json();
+    log('gh','inf','Login sebagai: '+login);
+
+    const repoCheck=await fetch(`${GH}/repos/${login}/${repo}`,{headers:H});
+    if(!repoCheck.ok){
+      log('gh','inf','Membuat repo baru: '+repo);
+      const cr=await fetch(`${GH}/user/repos`,{method:'POST',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify({name:repo,private:false,auto_init:false})});
+      if(!cr.ok){const e=await cr.json();throw new Error(e.message||'Gagal membuat repo');}
+      log('gh','inf','Repo dibuat.');
+      await new Promise(r=>setTimeout(r,1500));
+    } else log('gh','inf','Repo sudah ada, akan diupdate.');
+
+    let filesToUpload=[];
+
+    if(file.name.endsWith('.html')){
+      const buf=await readFile(file);
+      filesToUpload=[{path:'index.html',content:b64(buf)}];
+    } else {
+      log('gh','inf','Mengekstrak ZIP...');
+      const zip=await JSZip.loadAsync(file);
+      const entries=Object.keys(zip.files).filter(k=>!zip.files[k].dir);
+      const topDirs=[...new Set(entries.map(e=>e.split('/')[0]))];
+      let prefix='';
+      if(topDirs.length===1&&entries.some(e=>e.startsWith(topDirs[0]+'/'))){
+        const allHavePrefix=entries.every(e=>e.startsWith(topDirs[0]+'/'));
+        if(allHavePrefix)prefix=topDirs[0]+'/';
+      }
+      const hasIndex=entries.some(e=>(prefix?e.slice(prefix.length):e)==='index.html');
+      if(!hasIndex)throw new Error('File index.html tidak ditemukan di dalam ZIP.');
+      for(const k of entries){
+        const buf=await zip.files[k].async('arraybuffer');
+        filesToUpload.push({path:prefix?k.slice(prefix.length):k,content:b64(buf)});
+      }
+      log('gh','inf',`Ditemukan ${filesToUpload.length} file untuk diupload.`);
+    }
+
+    for(const f of filesToUpload){
+      const shaRes=await fetch(`${GH}/repos/${login}/${repo}/contents/${f.path}`,{headers:{...H,params:{ref:branch}}});
+      let sha=null;if(shaRes.ok){const d=await shaRes.json();sha=d.sha;}
+      const body={message:`deploy: ${f.path}`,content:f.content,branch};
+      if(sha)body.sha=sha;
+      const up=await fetch(`${GH}/repos/${login}/${repo}/contents/${f.path}`,{method:'PUT',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(!up.ok){const e=await up.json();throw new Error(`Upload ${f.path} gagal: `+(e.message||'unknown'));}
+      log('gh','ok','✓ '+f.path);
+    }
+
+    log('gh','inf','Mengaktifkan GitHub Pages...');
+    await fetch(`${GH}/repos/${login}/${repo}/pages`,{method:'POST',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify({source:{branch,path:'/'}})}).catch(()=>{});
+
+    const url=`https://${login}.github.io/${repo}`;
+    log('gh','ok','Deploy selesai! URL: '+url);
+    addHist('gh',`${login}/${repo}`,'success');
+    Swal.fire({icon:'success',title:'Deploy GitHub Pages berhasil!',html:`Repo: <code style="color:#3ecf8e">${login}/${repo}</code><br><a href="${url}" target="_blank" style="color:#4875f0">${url}</a><br><small style="color:var(--text3)">Halaman aktif dalam 1-2 menit.</small>`,confirmButtonColor:'#4875f0',...SB});
+  }catch(e){log('gh','err',e.message);addHist('gh',repo,'failed');al('error',e.message);}
+}
+
+/* ── DEPLOY: NETLIFY ── */
+async function deployNTL(){
+  const token=gTok('ntl');
+  const siteName=document.getElementById('ntl-site').value.trim();
+  const title=document.getElementById('ntl-title').value.trim()||'Deploy via DeployKit';
+  const file=files.ntl;
+  clearLog('ntl');
+  if(!token){gotoTok('ntl');al('error','Token Netlify belum diset.');return;}
+  if(!siteName){al('warning','Nama site wajib diisi.');return;}
+  if(!file){al('warning','Pilih file ZIP atau HTML dulu.');return;}
+  if(!/^[a-zA-Z0-9_-]+$/.test(siteName)){al('warning','Nama site tidak valid.');return;}
+
+  const H={'Authorization':'Bearer '+token,'Content-Type':'application/json'};
+  const NF='https://api.netlify.com/api/v1';
+
+  log('ntl','inf','Memulai deploy ke Netlify...');
+  addHist('ntl',siteName,'running');
+
+  try{
+    log('ntl','inf','Mencari site: '+siteName);
+    const sitesRes=await fetch(NF+'/sites?filter=all',{headers:H});
+    if(!sitesRes.ok)throw new Error('Gagal mengambil daftar site. Cek token.');
+    const sites=await sitesRes.json();
+    let site=sites.find(s=>s.name===siteName)||null;
+
+    if(!site){
+      log('ntl','inf','Site belum ada, membuat baru...');
+      const cr=await fetch(NF+'/sites',{method:'POST',headers:H,body:JSON.stringify({name:siteName})});
+      if(!cr.ok){const e=await cr.json();throw new Error(e.message||'Gagal membuat site');}
+      site=await cr.json();
+      log('ntl','inf','Site dibuat: '+site.id);
+    } else log('ntl','inf','Site ditemukan: '+site.id);
+
+    let deployZipBuf;
+    if(file.name.endsWith('.html')){
+      const JSZ=new JSZip();
+      const buf=await readFile(file);
+      JSZ.file('index.html',buf);
+      deployZipBuf=await JSZ.generateAsync({type:'arraybuffer'});
+    } else {
+      log('ntl','inf','Memvalidasi ZIP...');
+      const zip=await JSZip.loadAsync(file);
+      const entries=Object.keys(zip.files).filter(k=>!zip.files[k].dir);
+      const topDirs=[...new Set(entries.map(e=>e.split('/')[0]))];
+      let prefix='';
+      if(topDirs.length===1&&entries.every(e=>e.startsWith(topDirs[0]+'/'))){prefix=topDirs[0]+'/';}
+      const hasIndex=entries.some(e=>(prefix?e.slice(prefix.length):e)==='index.html');
+      if(!hasIndex)throw new Error('index.html tidak ditemukan di dalam ZIP.');
+      if(prefix){
+        const newZip=new JSZip();
+        for(const k of entries){
+          const buf=await zip.files[k].async('arraybuffer');
+          newZip.file(k.slice(prefix.length),buf);
+        }
+        deployZipBuf=await newZip.generateAsync({type:'arraybuffer'});
+      } else {
+        deployZipBuf=await file.arrayBuffer();
+      }
+    }
+
+    log('ntl','inf','Mengupload ZIP ke Netlify...');
+    const deployRes=await fetch(`${NF}/sites/${site.id}/deploys`,{
+      method:'POST',
+      headers:{Authorization:'Bearer '+token,'Content-Type':'application/zip'},
+      body:deployZipBuf
+    });
+    if(!deployRes.ok){const e=await deployRes.json();throw new Error(e.message||'Upload gagal');}
+    const deploy=await deployRes.json();
+    log('ntl','inf','Deploy ID: '+deploy.id+' — Menunggu selesai...');
+
+    let ready=null;
+    for(let i=0;i<24;i++){
+      await new Promise(r=>setTimeout(r,5000));
+      const poll=await fetch(`${NF}/deploys/${deploy.id}`,{headers:H});
+      const d=await poll.json();
+      if(d.state==='ready'){ready=d;break;}
+      if(d.state==='error')throw new Error('Deploy gagal di sisi Netlify.');
+      log('ntl','inf','State: '+d.state+'...');
+    }
+    if(!ready)throw new Error('Timeout menunggu deploy selesai.');
+
+    const url=ready.ssl_url||ready.url||`https://${siteName}.netlify.app`;
+    log('ntl','ok','Deploy selesai! URL: '+url);
+    addHist('ntl',siteName,'success');
+    Swal.fire({icon:'success',title:'Deploy Netlify berhasil!',html:`Site: <code style="color:#00ad9f">${siteName}</code><br><a href="${url}" target="_blank" style="color:#4875f0">${url}</a>`,confirmButtonColor:'#4875f0',...SB});
+  }catch(e){log('ntl','err',e.message);addHist('ntl',siteName,'failed');al('error',e.message);}
+}
+
+/* ── DEPLOY: VERCEL ── */
+async function deployVCL(){
+  const token=gTok('vcl');
+  const proj=document.getElementById('vcl-proj').value.trim().toLowerCase().replace(/[^a-z0-9-_]/g,'');
+  const team=document.getElementById('vcl-team').value.trim();
+  const file=files.vcl;
+  clearLog('vcl');
+  if(!token){gotoTok('vcl');al('error','Token Vercel belum diset.');return;}
+  if(!proj){al('warning','Nama project wajib diisi.');return;}
+  if(!file){al('warning','Pilih file ZIP atau HTML dulu.');return;}
+
+  const VCL='https://api.vercel.com';
+  const H={'Authorization':'Bearer '+token,'Content-Type':'application/json'};
+  const teamQ=team?`?teamId=${team}`:'';
+
+  log('vcl','inf','Memulai deploy ke Vercel...');
+  addHist('vcl',proj,'running');
+
+  try{
+    let filesToDeploy=[];
+
+    if(file.name.endsWith('.html')){
+      const buf=await readFile(file);
+      filesToDeploy=[{filePath:'index.html',content:new Uint8Array(buf)}];
+    } else {
+      log('vcl','inf','Mengekstrak ZIP...');
+      const zip=await JSZip.loadAsync(file);
+      const entries=Object.keys(zip.files).filter(k=>!zip.files[k].dir);
+      const topDirs=[...new Set(entries.map(e=>e.split('/')[0]))];
+      let prefix='';
+      if(topDirs.length===1&&entries.every(e=>e.startsWith(topDirs[0]+'/'))){prefix=topDirs[0]+'/';}
+      const hasIndex=entries.some(e=>(prefix?e.slice(prefix.length):e)==='index.html');
+      if(!hasIndex)throw new Error('index.html tidak ditemukan di dalam ZIP.');
+      for(const k of entries){
+        const buf=await zip.files[k].async('arraybuffer');
+        filesToDeploy.push({filePath:prefix?k.slice(prefix.length):k,content:new Uint8Array(buf)});
+      }
+      log('vcl','inf',`Ditemukan ${filesToDeploy.length} file.`);
+    }
+
+    log('vcl','inf','Mengupload file ke Vercel...');
+    const filesMeta=[];
+    for(const f of filesToDeploy){
+      const digest=await sha1hex(f.content.buffer);
+      await fetch(`${VCL}/v2/files`,{
+        method:'POST',
+        headers:{Authorization:'Bearer '+token,'Content-Type':'application/octet-stream','x-vercel-digest':digest},
+        body:f.content
+      });
+      filesMeta.push({file:f.filePath,sha:digest,size:f.content.length});
+      log('vcl','ok','↑ '+f.filePath);
+    }
+
+    log('vcl','inf','Membuat project...');
+    await fetch(`${VCL}/v9/projects${teamQ}`,{method:'POST',headers:H,body:JSON.stringify({name:proj})}).catch(()=>{});
+
+    log('vcl','inf','Membuat deployment...');
+    const depRes=await fetch(`${VCL}/v13/deployments${teamQ}`,{
+      method:'POST',headers:H,
+      body:JSON.stringify({name:proj,project:proj,files:filesMeta,projectSettings:{framework:null}})
+    });
+    if(!depRes.ok){const e=await depRes.json();throw new Error(e.error?.message||e.message||'Deploy gagal');}
+    const dep=await depRes.json();
+    log('vcl','inf','Deployment ID: '+dep.id+' — Menunggu ready...');
+
+    let ready=null;
+    for(let i=0;i<15;i++){
+      await new Promise(r=>setTimeout(r,4000));
+      const poll=await fetch(`${VCL}/v13/deployments/${dep.id}`,{headers:H});
+      const d=await poll.json();
+      if(d.readyState==='READY'){ready=d;break;}
+      if(d.readyState==='ERROR'||d.readyState==='CANCELED')throw new Error('Deployment state: '+d.readyState);
+      log('vcl','inf','State: '+d.readyState+'...');
+    }
+    if(!ready)throw new Error('Timeout menunggu deployment selesai.');
+
+    const url=`https://${ready.url||proj+'.vercel.app'}`;
+    log('vcl','ok','Deploy selesai! URL: '+url);
+    addHist('vcl',proj,'success');
+    Swal.fire({icon:'success',title:'Deploy Vercel berhasil!',html:`Project: <code>${proj}</code><br><a href="${url}" target="_blank" style="color:#4875f0">${url}</a>`,confirmButtonColor:'#4875f0',...SB});
+  }catch(e){log('vcl','err',e.message);addHist('vcl',proj,'failed');al('error',e.message);}
+}
+
+/* ── WEB LIST (Vercel) ── */
+async function loadWebs(){
+  const token=gTok('vcl');
+  const el=document.getElementById('webs-wrap');
+  if(!token){el.innerHTML='<div class="empty"><i class="fas fa-key"></i>Set token Vercel dulu di halaman Tokens.</div>';return;}
+  el.innerHTML='<div class="empty"><i class="fas fa-circle-notch fa-spin"></i>Memuat...</div>';
+  try{
+    const res=await fetch('https://api.vercel.com/v9/projects',{headers:{Authorization:'Bearer '+token}});
+    if(!res.ok)throw new Error('Gagal mengambil daftar. Cek token Vercel.');
+    const data=await res.json();
+    const projects=data.projects||[];
+    if(!projects.length){el.innerHTML='<div class="empty"><i class="fas fa-globe"></i>Tidak ada project di Vercel.</div>';return;}
+    el.innerHTML=`<table class="web-table">
+      <thead><tr><th>Project</th><th>URL</th><th>Aksi</th></tr></thead>
+      <tbody>`+projects.map(p=>`
+      <tr>
+        <td style="font-weight:500">${p.name}</td>
+        <td><a class="web-link" href="https://${p.name}.vercel.app" target="_blank">https://${p.name}.vercel.app</a></td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteWeb('${p.name}','${p.id}')"><i class="fas fa-trash"></i> Hapus</button></td>
+      </tr>`).join('')+`</tbody></table>`;
+  }catch(e){el.innerHTML=`<div class="empty"><i class="fas fa-circle-exclamation"></i>${e.message}</div>`;}
+}
+
+async function deleteWeb(name,id){
+  const token=gTok('vcl');
+  Swal.fire({title:'Hapus project '+name+'?',text:'Website akan dihapus dari Vercel. Tidak bisa dibatalkan.',icon:'warning',showCancelButton:true,confirmButtonText:'Hapus',cancelButtonText:'Batal',confirmButtonColor:'#e3504f',cancelButtonColor:'#374151',...SB})
+  .then(async r=>{
+    if(!r.isConfirmed)return;
+    try{
+      const res=await fetch(`https://api.vercel.com/v9/projects/${id||name}`,{method:'DELETE',headers:{Authorization:'Bearer '+token}});
+      if(res.ok||res.status===204||res.status===200){
+        Swal.fire({icon:'success',title:'Project '+name+' dihapus!',timer:1400,showConfirmButton:false,...SB});
+        loadWebs();
+      } else {
+        const e=await res.json().catch(()=>({}));
+        throw new Error(e.error?.message||'Gagal menghapus project.');
+      }
+    }catch(e){al('error',e.message);}
+  });
+}
+
+checkSession();
+</script>
+</body>
+</html>
